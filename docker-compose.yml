@@ -1,0 +1,74 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: genai
+      POSTGRES_PASSWORD: genai
+      POSTGRES_DB: genai_studio
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U genai -d genai_studio"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://genai:genai@db:5432/genai_studio
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      STORAGE_PATH: /app/storage/generated
+    volumes:
+      - storage_data:/app/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  worker:
+    build: .
+    command: celery -A app.tasks.celery_app.celery_app worker -l INFO
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://genai:genai@db:5432/genai_studio
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      STORAGE_PATH: /app/storage/generated
+    volumes:
+      - storage_data:/app/storage
+    depends_on:
+      - db
+      - redis
+      - api
+
+  beat:
+    build: .
+    command: celery -A app.tasks.celery_app.celery_app beat -l INFO
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://genai:genai@db:5432/genai_studio
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    depends_on:
+      - redis
+      - worker
+
+volumes:
+  pgdata:
+  storage_data:
