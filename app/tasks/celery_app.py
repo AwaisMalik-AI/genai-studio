@@ -36,3 +36,4 @@ celery_app.conf.beat_schedule = {
 # Register task modules (explicit import ensures worker registers names)
 import app.tasks.generation_tasks  # noqa: F401, E402
 import app.tasks.maintenance_tasks  # noqa: F401, E402
+import app.tasks.crew_tasks  # noqa: F401, E402
