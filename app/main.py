@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import ab_tests, analytics, auth, collections, crews, generate, jobs, styles, templates
+from app.api.routes import ab_tests, analytics, auth, collections, crews, generate, jobs, prompt_lab, styles, templates
 from app.core.config import settings
 from app.core.database import Base, engine
 import app.models.content  # noqa: F401 — register ORM tables
@@ -50,3 +50,4 @@ app.include_router(ab_tests.router, prefix=settings.API_V1_PREFIX)
 app.include_router(jobs.router, prefix=settings.API_V1_PREFIX)
 app.include_router(analytics.router, prefix=settings.API_V1_PREFIX)
 app.include_router(crews.router, prefix=settings.API_V1_PREFIX)
+app.include_router(prompt_lab.router, prefix=settings.API_V1_PREFIX)

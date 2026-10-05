@@ -2,7 +2,7 @@
 
 Backend-only **FastAPI** service for **text**, **image**, and **code** generation with **versioned prompt templates**, **style presets**, **LLM-based moderation**, **A/B prompt testing**, **usage quotas**, **cost/token analytics**, and **Celery** background jobs. Designed as a **portfolio-grade** example of generative AI engineering, prompt tooling, and multi-provider integration.
 
-**Latest:** Content crew (`POST /api/crews/content`) — writer → editor → critic with Celery worker `genai.run_content_crew`.
+**Latest:** Content crew plus **prompt lab** (`POST /api/prompt-lab/variants`) for ranked A/B prompt variants.
 
 **Secrets** live in environment variables only (see `.env.example`). No API keys are hardcoded.
 
